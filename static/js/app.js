@@ -6,6 +6,7 @@ const url = 'https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/
 
 d3.json(url).then(function(data){
 
+    // make sure the data is able to import
     console.log(data);
 
 
@@ -16,6 +17,7 @@ d3.json(url).then(function(data){
   });
 
 // execute the function
+
 init();
 
 
@@ -34,7 +36,7 @@ function init(){
 
     d3.json(url).then(function(data){
 
-        // access samples property
+        // access samples property.. this can be done by doing data.property that I am trying to access.. this only works because there are actual parent directories
         let sampleNames = data.names;
  
         // bind sampleNames array to dropdown menu to create an option for each
@@ -53,10 +55,9 @@ function init(){
         
         let selectedValue = dropdownMenu.property('value'); // this returns the value of the dropdownMenu
 
-        optionChanged(selectedValue);
+        hbarChart(sampleNames[0]); // show a defaulted plot
 
-        // show a defaulted plot
-        hbarChart(sampleNames[0]);
+        optionChanged(selectedValue); // execute any options that are changed
     
 
     });
@@ -68,10 +69,14 @@ function init(){
 // optionChanged function is refereced in the html.. so I'll use this name instead since it was given to me in starter code
 function optionChanged(selectedSample){
 
+    // print statement to show it is collecting correct data
     console.log('Selected Value:', selectedSample);
     // update chart here
     hbarChart(selectedSample);
     metadataChart(selectedSample);
+    bubbleChart(selectedSample);
+
+
 };
 
 
@@ -95,11 +100,8 @@ function hbarChart(selectedSample){
         let firstTenOtuVals = selOtuVals[0].slice(0,10);
         let firstTenLabels = selLabels[0].slice(0,10);
 
-        // not sure why this prints twice
-        //console.log('This is the first 10 OTU ID', firstTenOtuID);
-        //console.log('This is the first 10 OTU Vals', firstTenOtuVals);
-
-        let Trace = [{
+        // create bar graph trace
+        let barTrace = [{
             x: firstTenOtuVals.reverse(),
             // this creates a new array of the original values + OTU... i.e.) ['OTU 1167', 'OTU 2859' etc.] this array will then match the x values
             // otherwise, this will only create a horizontal bar chart that matches ints with ints.. not string(labels) with ints
@@ -112,10 +114,12 @@ function hbarChart(selectedSample){
 
 
         let layout = {
-            title:""
+            title:"",
+            xaxis: {title: 'Sample Values'},
+            yaxis: {title: 'OTU ID'}
         };
 
-        Plotly.newPlot('bar', Trace, layout);
+        Plotly.newPlot('bar', barTrace, layout);
 
 
     });
@@ -154,18 +158,39 @@ function bubbleChart(selectedSample){
 
     d3.json(url).then(function(data){
 
+        let selSampleData = data.samples.filter(selSamp => selSamp.id == selectedSample);
+
+        // get the OTUids, vals, and labels from the data
+        let selOtuID = selSampleData.map(otuid => otuid.otu_ids)[0];
+        let selOtuVals = selSampleData.map(otuval => otuval.sample_values)[0];
+        let selLabels = selSampleData.map(otulabels => otulabels.otu_labels)[0];
 
 
+        let bubbleTrace = [{
+            x: selOtuID,
+            y: selOtuVals,
+            text: selLabels,
+            mode: 'markers',
+            marker : {
+                size: selOtuVals,
+                color: selOtuID,
+                colorscale: 'Earth'
+            }
+
+        }];
+
+        let bubbleLayout = {
+            xaxis: {title: 'OTU ID'},
+            yaxis: {title: 'Sample Values'}
+ 
+        };
+
+        Plotly.newPlot('bubble', bubbleTrace, bubbleLayout);
 
 
-
-
-    })
+    });
 
 
 };
-
-
-
 
 
