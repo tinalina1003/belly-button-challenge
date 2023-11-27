@@ -3,6 +3,10 @@ This is my bootcamp Module 14 Assignment, JavaScript Challenge
 
 Please note that the javascript code written by me is under static -> js -> app.js
 
+Link to Github Pages:
+
+## https://tinalina1003.github.io/belly-button-challenge/
+
 
 # Instructions
 
